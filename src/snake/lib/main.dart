@@ -19,8 +19,17 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   late int fruitPos;
   late var snake;
+  int score = 0;
 
-  int snakePos = 44;
+  bool gamemover = false;
+
+  void reset(){
+    snake = Snake();
+    fruitPos = Random().nextInt(100);
+    score = 0;
+
+    gamemover = false;
+  }
 
   Widget gameGrid(Snake snake) {
     return GridView.builder(
@@ -42,15 +51,25 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
-  MaterialColor getTileColor(int tilePos, Snake snake) {
+  Color? getTileColor(int tilePos, Snake snake) {
     if (snake.getpos() == fruitPos && snake.getpos() == tilePos) {
         fruitPos = Random().nextInt(100);
+        snake.bodyPos.insert(snake.bodyPos.length, snake.bodyPos[snake.bodyPos.length - 1]);
+        score += 10;
       return Colors.green;
+    }
+    if (snake.bodyPos.contains(snake.getpos()) || snake.x < 0 || snake.x > 9 || snake.y < 0 || snake.y > 9){
+      gamemover = true;
+      return Colors.amber;
     }
     else if (fruitPos == tilePos) {
       return Colors.red;
     } else if (snake.getpos() == tilePos) {
-      return Colors.green;
+      return Colors.green[900];
+    } else if (snake.bodyPos[snake.bodyPos.length - 1] == tilePos) {
+      return Colors.green[300];
+    } else if (snake.bodyPos.contains(tilePos) && snake.bodyPos[snake.bodyPos.length - 1] != tilePos) {
+      return Colors.green[700];
     } else {
       return Colors.blue;
     }
@@ -67,9 +86,13 @@ class _MainAppState extends State<MainApp> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      snake.updateY(-1);
-                    });
+                    if (gamemover) {
+                      reset();
+                    } else {
+                      setState(() {
+                        snake.move("up");
+                      });
+                    }
                   },
                   child: const Icon(
                     Icons.arrow_upward,
@@ -84,9 +107,13 @@ class _MainAppState extends State<MainApp> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      snake.updateX(-1);
-                    });
+                    if (gamemover) {
+                      reset();
+                    } else {
+                      setState(() {
+                        snake.move("left");
+                      });
+                    }
                   },
                   child: const Icon(
                     Icons.arrow_back,
@@ -96,9 +123,13 @@ class _MainAppState extends State<MainApp> {
                 SizedBox(width: 50),
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      snake.updateX(1);
-                    });
+                    if (gamemover) {
+                      reset();
+                    } else {
+                      setState(() {
+                        snake.move("right");
+                      });
+                    }
                   },
                   child: const Icon(
                     Icons.arrow_forward,
@@ -113,9 +144,13 @@ class _MainAppState extends State<MainApp> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    setState(() {
-                      snake.updateY(1);
-                    });
+                    if (gamemover) {
+                      reset();
+                    } else {
+                      setState(() {
+                        snake.move("down");
+                      });
+                    }
                   },
                   child: const Icon(
                     Icons.arrow_downward,
@@ -146,10 +181,10 @@ class _MainAppState extends State<MainApp> {
           backgroundColor: Colors.blue[300],
           appBar: AppBar(
             backgroundColor: Colors.blue[300],
-            leading: const Center(
+            leading: Center(
                 child: Text(
-                  'Score: 0',
-                  style: TextStyle(
+                  'Score: ${score.toString()}',
+                  style: const TextStyle(
                     backgroundColor: Colors.white,
                     color: Colors.black,
                   ) 
@@ -181,6 +216,14 @@ class _MainAppState extends State<MainApp> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Text(
+                        gamemover ? "Game Over!" : "",
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
                       gameControls(snake),
                     ]
                   )

@@ -2,8 +2,22 @@ class Snake {
   int x = 4;
   int y = 4;
 
-  void move(int newPos) {
+  var bodyPos = [45, 55];
 
+  void move(String direction) {
+
+    bodyPos.insert(0, getpos());
+    bodyPos.removeLast();
+
+    if (direction == "up") {
+      updateY(-1);
+    } else if (direction == "down") {
+      updateY(1);
+    } else if (direction == "left") {
+      updateX(-1);
+    } else if (direction == "right") {
+      updateX(1);
+    }
   }
 
   void updateX(int modifier) {
